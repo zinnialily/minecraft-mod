@@ -3,15 +3,18 @@
   "id": "minecraft_mod",
   "version": "${version}",
   "name": "minecraft_mod",
-  "description": "",
-  "authors": [],
+  "description": "testing",
+  "authors": ["zinnialily"],
   "contact": {},
   "license": "MIT",
   "icon": "assets/minecraft_mod/icon.png",
   "environment": "*",
   "entrypoints": {
     "main": [
-      ".minecraft_mod.Main"
+      "io.github.zinnialily.minecraft_mod.Main"
+    ],
+    "client" : [
+      "io.github.zinnialily.minecraft_mod.Client"
     ]
   },
   "mixins": [
