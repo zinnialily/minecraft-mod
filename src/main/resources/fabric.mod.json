@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "minecraft_mod",
+  "version": "${version}",
+  "name": "minecraft_mod",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/minecraft_mod/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      ".minecraft_mod.Main"
+    ]
+  },
+  "mixins": [
+    "minecraft_mod.mixins.json"
+  ],
+  "depends": {
+    "minecraft": "~26.1",
+    "fabric-api": "*"
+  }
+}
