@@ -10,6 +10,7 @@ public class Main implements ModInitializer {
 	public static final Logger LOGGER= LoggerFactory.getLogger(MOD_ID);
 	@Override
 	public void onInitialize() {
-		ModBlocks.registerModBlocks();
+		LOGGER.info("Initializing {}", MOD_ID);
+		ModBlocks.initialize();
 	}
 }
