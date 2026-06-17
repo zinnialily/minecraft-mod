@@ -17,7 +17,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 
 public class ModBlocks {
     public static final Block CABBAGE_BLOCK = register(
-            "cabbage_block",
+            "cabbage",
             Block::new,
             //need to change
             BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
