@@ -36,17 +36,26 @@ public class ModBlocks {
                     .sound(SoundType.WOOD),
             true
     );*/
-    //public static final IntegerProperty JUMPS = IntegerProperty.create("jumps", 0, 5); //how many times the block jumps
+    public static final IntegerProperty JUMPS = IntegerProperty.create("jumps", 0, 5); //how many times the block jumps
     public static final Block CABBAGE_BLOCK = register(
             "cabbage",
             (properties) -> new Block(properties) {
                 @Override
+                protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+                    builder.add(JUMPS);
+                }
+                @Override
                 public InteractionResult useWithoutItem(BlockState blockState, Level level, BlockPos blockPos, Player player, BlockHitResult blockHitResult) {
                     if (!level.isClientSide()) {
+                        int currentJumps=blockState.getValue(JUMPS);
+                        if (currentJumps >= 5) {
+                            return InteractionResult.SUCCESS;
+                        }
                         level.destroyBlock(blockPos, false);
                         BlockPos newPos = blockPos;
                         boolean foundAir = false;
                         int attempts = 0;
+                        //makes sure a valid spot is found [sometimes the random position will already have smth there (like stone/trees/etc.)]
                         while (!foundAir && attempts < 20) {
                             int offsetX = level.getRandom().nextInt(3) - 1;
                             int offsetY = 0;
@@ -59,7 +68,8 @@ public class ModBlocks {
                             attempts++;
                         }
                         if (foundAir) {
-                            level.setBlock(newPos, this.defaultBlockState(), 3);
+                            BlockState newState = blockState.setValue(JUMPS, currentJumps+1);
+                            level.setBlock(newPos, newState, 3);
                         }
 
                         return InteractionResult.SUCCESS;
