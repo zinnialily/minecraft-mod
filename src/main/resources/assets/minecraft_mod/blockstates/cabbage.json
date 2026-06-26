@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "block/cabbage"
+      "model": "minecraft_mod:block/cabbage"
     }
   }
 }
