@@ -44,14 +44,21 @@ public class ModBlocks {
                 public InteractionResult useWithoutItem(BlockState blockState, Level level, BlockPos blockPos, Player player, BlockHitResult blockHitResult) {
                     if (!level.isClientSide()) {
                         level.destroyBlock(blockPos, false);
+                        BlockPos newPos = blockPos;
+                        boolean foundAir = false;
+                        int attempts = 0;
+                        while (!foundAir && attempts < 20) {
+                            int offsetX = level.getRandom().nextInt(3) - 1;
+                            int offsetY = 0;
+                            int offsetZ = level.getRandom().nextInt(3) - 1;
 
-                        int offsetX = level.getRandom().nextInt(3) - 1;
-                        int offsetY = 0;
-                        int offsetZ = level.getRandom().nextInt(3) - 1;; //gets hard to reach + whackamoles are xy plane only
-
-                        BlockPos newPos = blockPos.offset(offsetX, offsetY, offsetZ);
-
-                        if (level.getBlockState(newPos).isAir()) {
+                            newPos = blockPos.offset(offsetX, offsetY, offsetZ);
+                            if (level.getBlockState(newPos).isAir()) {
+                                foundAir = true;
+                            }
+                            attempts++;
+                        }
+                        if (foundAir) {
                             level.setBlock(newPos, this.defaultBlockState(), 3);
                         }
 
