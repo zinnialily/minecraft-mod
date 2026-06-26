@@ -6,6 +6,11 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.Display;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -20,7 +25,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import java.util.Random;
 public class ModBlocks {
     /*public static final Block CABBAGE_BLOCK = register(
             "cabbage",
@@ -32,6 +36,7 @@ public class ModBlocks {
                     .sound(SoundType.WOOD),
             true
     );*/
+    //public static final IntegerProperty JUMPS = IntegerProperty.create("jumps", 0, 5); //how many times the block jumps
     public static final Block CABBAGE_BLOCK = register(
             "cabbage",
             (properties) -> new Block(properties) {
@@ -41,8 +46,8 @@ public class ModBlocks {
                         level.destroyBlock(blockPos, false);
 
                         int offsetX = level.getRandom().nextInt(3) - 1;
-                        int offsetY = level.getRandom().nextInt(3) - 1;
-                        int offsetZ = level.getRandom().nextInt(3) - 1;
+                        int offsetY = 0;
+                        int offsetZ = level.getRandom().nextInt(3) - 1;; //gets hard to reach + whackamoles are xy plane only
 
                         BlockPos newPos = blockPos.offset(offsetX, offsetY, offsetZ);
 
