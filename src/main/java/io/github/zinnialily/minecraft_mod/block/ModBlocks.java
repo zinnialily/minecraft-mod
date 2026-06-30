@@ -26,16 +26,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 public class ModBlocks {
-    /*public static final Block CABBAGE_BLOCK = register(
-            "cabbage",
-            Block::new,
-            //need to change
-            BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
-                    .strength(4.0f)
-                    .requiresCorrectToolForDrops()
-                    .sound(SoundType.WOOD),
-            true
-    );*/
     public static final IntegerProperty JUMPS = IntegerProperty.create("jumps", 0, 5); //how many times the block jumps
     public static final Block CABBAGE_BLOCK = register(
             "cabbage",
@@ -44,32 +34,71 @@ public class ModBlocks {
                 protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
                     builder.add(JUMPS);
                 }
+                //places red fence (simulated by red blocks) based on first block
+                @Override
+                protected void onPlace(BlockState blockState, Level level, BlockPos blockPos, BlockState oldState, boolean isMoving) {
+                    super.onPlace(blockState, level, blockPos, oldState, isMoving);
+
+                    //only if jump==0
+                    if (!level.isClientSide() && blockState.getValue(JUMPS) == 0) {
+                        int groundY = blockPos.getY() - 1;
+                        for (int x = 0; x < 2; x++) {
+                            for (int z = 0; z < 4; z++) {
+                                BlockPos floorPos = new BlockPos(blockPos.getX() + x, groundY, blockPos.getZ() + z);
+                                level.setBlock(floorPos, Blocks.RED_CONCRETE.defaultBlockState(), 3);
+                            }
+                        }
+                    }
+                }
                 @Override
                 public InteractionResult useWithoutItem(BlockState blockState, Level level, BlockPos blockPos, Player player, BlockHitResult blockHitResult) {
                     if (!level.isClientSide()) {
-                        int currentJumps=blockState.getValue(JUMPS);
+                        int currentJumps = blockState.getValue(JUMPS);
                         if (currentJumps >= 5) {
                             return InteractionResult.SUCCESS;
+                        }
+
+                        int groundY = blockPos.getY() - 1;
+                        int anchorX = blockPos.getX();
+                        int anchorZ = blockPos.getZ();
+                        boolean foundAnchor = false;
+                        for (int x = -2; x <= 2 && !foundAnchor; x++) {
+                            for (int z = -4; z <= 4 && !foundAnchor; z++) {
+                                BlockPos checkPos = new BlockPos(blockPos.getX() + x, groundY, blockPos.getZ() + z);
+                                if (level.getBlockState(checkPos).is(Blocks.RED_CONCRETE) &&
+                                        level.getBlockState(checkPos.offset(1, 0, 0)).is(Blocks.RED_CONCRETE) &&
+                                        level.getBlockState(checkPos.offset(0, 0, 3)).is(Blocks.RED_CONCRETE) &&
+                                        !level.getBlockState(checkPos.offset(-1, 0, 0)).is(Blocks.RED_CONCRETE) &&
+                                        !level.getBlockState(checkPos.offset(0, 0, -1)).is(Blocks.RED_CONCRETE)) {
+                                    anchorX = checkPos.getX();
+                                    anchorZ = checkPos.getZ();
+                                    foundAnchor = true;
+                                }
+                            }
                         }
                         level.destroyBlock(blockPos, false);
                         BlockPos newPos = blockPos;
                         boolean foundAir = false;
                         int attempts = 0;
-                        //makes sure a valid spot is found [sometimes the random position will already have smth there (like stone/trees/etc.)]
-                        while (!foundAir && attempts < 20) {
-                            int offsetX = level.getRandom().nextInt(3) - 1;
-                            int offsetY = 0;
-                            int offsetZ = level.getRandom().nextInt(3) - 1;
+                        //jumping ONLY within red fence
+                        while (!foundAir && attempts < 30) {
+                            int offsetX = level.getRandom().nextInt(2); // 0 or 1
+                            int offsetZ = level.getRandom().nextInt(4); // 0 to 3
 
-                            newPos = blockPos.offset(offsetX, offsetY, offsetZ);
+                            newPos = new BlockPos(anchorX + offsetX, blockPos.getY(), anchorZ + offsetZ);
+
                             if (level.getBlockState(newPos).isAir()) {
                                 foundAir = true;
                             }
                             attempts++;
                         }
+
                         if (foundAir) {
-                            BlockState newState = blockState.setValue(JUMPS, currentJumps+1);
+                            BlockState newState = blockState.setValue(JUMPS, currentJumps + 1);
                             level.setBlock(newPos, newState, 3);
+                        } else {
+                            BlockState newState = blockState.setValue(JUMPS, currentJumps + 1);
+                            level.setBlock(blockPos, newState, 3);
                         }
 
                         return InteractionResult.SUCCESS;
